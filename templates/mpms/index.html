@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="text/javascript">
         function getCookie(name) {
@@ -37,26 +37,39 @@
 
         $().ready(function(){
             $.ajax({
-                url: 'http://localhost:3000/api/curve/5/get_data_points/',
+                url: 'http://localhost:3000/api/curve/1/get_data_points/',
                 type: 'GET',
                 contentType: false,
                 processType: false,
                 cache: false,
                 success: function(response){
-                    var chart = new CanvasJS.Chart("chartContainer",
-                        {
-                            zoomEnabled: true,
-                            title: {
-                                text: "MPMS"
+                    google.charts.load('current', {packages: ['corechart', 'line']});
+                    google.charts.setOnLoadCallback(drawBasic);
+
+                    function drawBasic() {
+
+                        var data = new google.visualization.DataTable();
+                        data.addColumn('number', response.xAxis);
+                        data.addColumn('number', response.yAxis);
+
+                        data.addRows(response.dataPoints.map(function (e) {
+                            return [e.x, e.y];
+                        }));
+
+                        var options = {
+
+                            hAxis: {
+                                title: response.xAxis,
                             },
-                            data: [{
-                                    type: "line",
-                                    dataPoints: response.dataPoints,
+                            vAxis: {
+                                title: response.yAxis
+                            }
+                        };
 
-                                }]
+                        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
-                        });
-                    chart.render();
+                        chart.draw(data, options);
+                    }
                 }
             })
         })
@@ -71,20 +84,32 @@
                     processType: false,
                     cache: false,
                     success: function(response){
-                        var chart = new CanvasJS.Chart("chartContainer",
-                            {
-                                zoomEnabled: true,
-                                title: {
-                                    text: "MPMS"
+                        google.charts.load('current', {packages: ['corechart', 'line']});
+                        google.charts.setOnLoadCallback(drawBasic);
+
+                        function drawBasic() {
+
+                            var data = new google.visualization.DataTable();
+                            data.addColumn('number', response.xAxis);
+                            data.addColumn('number', response.yAxis);
+
+                            data.addRows(response.dataPoints.map(function (e) {
+                                return [e.x, e.y];
+                            }));
+
+                            var options = {
+                                hAxis: {
+                                    title: response.xAxis
                                 },
-                                data: [{
-                                        type: "line",
-                                        dataPoints: response.dataPoints,
+                                vAxis: {
+                                    title: response.yAxis
+                                }
+                            };
 
-                                }]
+                            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
-                            });
-                        chart.render();
+                            chart.draw(data, options);
+                        }
                     }
                 })
             })
@@ -95,7 +120,6 @@
     {% for curve in object_list %}
         <li><button type="text" class="curve-button" id="curve-{{ curve.id }}" value="{{ curve.id }}">{{ curve.id }}-{{ curve.sequence }}</button></li>
     {% endfor %}
-  <div id="chartContainer" style="height: 300px; width: 100%;">
-  </div>
+    <div id="chart_div"></div>
 </body>
 </html>
