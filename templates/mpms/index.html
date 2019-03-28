@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        $.ajaxSetup({
+            beforeSend: function (xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+
+        $().ready(function(){
+            $.ajax({
+                url: 'http://localhost:3000/api/curve/5/get_data_points/',
+                type: 'GET',
+                contentType: false,
+                processType: false,
+                cache: false,
+                success: function(response){
+                    var chart = new CanvasJS.Chart("chartContainer",
+                        {
+                            zoomEnabled: true,
+                            title: {
+                                text: "MPMS"
+                            },
+                            data: [{
+                                    type: "line",
+                                    dataPoints: response.dataPoints,
+
+                                }]
+
+                        });
+                    chart.render();
+                }
+            })
+        })
+
+        $(function(){
+            $('.curve-button').click(function(){
+                curve_id = $(this).val();
+                $.ajax({
+                    url: 'http://localhost:3000/api/curve/'+curve_id+'/get_data_points/',
+                    type: 'GET',
+                    contentType: false,
+                    processType: false,
+                    cache: false,
+                    success: function(response){
+                        var chart = new CanvasJS.Chart("chartContainer",
+                            {
+                                zoomEnabled: true,
+                                title: {
+                                    text: "MPMS"
+                                },
+                                data: [{
+                                        type: "line",
+                                        dataPoints: response.dataPoints,
+
+                                }]
+
+                            });
+                        chart.render();
+                    }
+                })
+            })
+        })
+    </script>
+</head>
+<body>
+    {% for curve in object_list %}
+        <li><button type="text" class="curve-button" id="curve-{{ curve.id }}" value="{{ curve.id }}">{{ curve.id }}-{{ curve.sequence }}</button></li>
+    {% endfor %}
+  <div id="chartContainer" style="height: 300px; width: 100%;">
+  </div>
+</body>
+</html>

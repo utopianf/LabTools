@@ -1,4 +1,9 @@
+from django.http import HttpResponse
+from django.template import loader
+from django.views.generic.list import ListView
+
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Curve, DataFile
@@ -10,17 +15,25 @@ class CurveViewSet(viewsets.ModelViewSet):
     queryset = Curve.objects.all().order_by('-id')
     serializer_class = CurveSerializer
 
-    def retrieve(self, request, *args, **kwargs):
+    @action(detail=True)
+    def get_data_points(self, request, pk=None):
         curve = self.get_object()
+        points = []
         if curve.sequence == "MH":
-            points = [{"M": p.magnetization, "H": p.magnetic_field} for p in curve.point_set.all()]
+            points = [{"x": p.magnetic_field, "y": p.magnetization} for p in curve.point_set.all()]
         elif curve.sequence == "MT":
-            points = [{"M": p.magnetization, "H": p.temperature} for p in curve.point_set.all()]
-        data = self.get_serializer(curve).data
-        data['points'] = points
+            points = [{"x": p.temperature, "y": p.magnetization} for p in curve.point_set.all()]
+        data = {'dataPoints': points}
         return Response(data)
 
 
 class DataFileViewSet(viewsets.ModelViewSet):
     queryset = DataFile.objects.all()
     serializer_class = DataFileSerializer
+
+
+class IndexView(ListView):
+
+    model = Curve
+    template_name = "mpms/index.html"
+    paginate_by = 10

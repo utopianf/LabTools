@@ -22,4 +22,5 @@ from mpms.urls import router as mpms_router
 urlpatterns = [
     path('admin/', admin.site.urls),
     path(r'api/', include(mpms_router.urls)),
+    path('mpms/', include('mpms.urls'))
 ]
