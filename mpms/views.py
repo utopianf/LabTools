@@ -23,7 +23,7 @@ class CurveViewSet(viewsets.ModelViewSet):
             points = [{"x": p.magnetic_field, "y": p.magnetization} for p in curve.point_set.all()]
         elif curve.sequence == "MT":
             points = [{"x": p.temperature, "y": p.magnetization} for p in curve.point_set.all()]
-        data = {'dataPoints': points}
+        data = {'dataPoints': points, 'xAxis': curve.sequence[-1], 'yAxis': curve.sequence[0]}
         return Response(data)
 
 
