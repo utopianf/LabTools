@@ -1,6 +1,17 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+</head>
+<body>
+    {% for curve in object_list %}
+        <li><button class="curve-button" id="curve-{{ curve.id }}" type="button" value="{{ curve.id }}">{{ curve.id }}-{{ curve.sequence }}</button></li>
+    {% endfor %}
+    <div id="chart_div"></div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script type="text/javascript">
@@ -69,6 +80,15 @@
                         var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
 
                         chart.draw(data, options);
+                        console.log(chart.getSelection());
+
+                        google.visualization.events.addListener(chart, 'select', selectHandler);
+
+                        function selectHandler(e) {
+                            var selection = chart.getSelection();
+                            console.log(selection);
+                            alert(data.getValue(selection[0].row, 0)+","+data.getValue(0, selection[0].column));
+                        }
                     }
                 }
             })
@@ -76,7 +96,7 @@
 
         $(function(){
             $('.curve-button').click(function(){
-                curve_id = $(this).val();
+                var curve_id = $(this).val();
                 $.ajax({
                     url: 'http://localhost:3000/api/curve/'+curve_id+'/get_data_points/',
                     type: 'GET',
@@ -115,11 +135,5 @@
             })
         })
     </script>
-</head>
-<body>
-    {% for curve in object_list %}
-        <li><button type="text" class="curve-button" id="curve-{{ curve.id }}" value="{{ curve.id }}">{{ curve.id }}-{{ curve.sequence }}</button></li>
-    {% endfor %}
-    <div id="chart_div"></div>
 </body>
 </html>
