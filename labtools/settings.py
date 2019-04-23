@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'mpms',
+    # 'mpms',
+    'samplelist',
+    'frontend',
 ]
 
 MIDDLEWARE = [
