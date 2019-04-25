@@ -1,17 +1,38 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import DataProvider from "./DataProvider";
-import SampleTable from "./Table";
-import SampleModal from "./Modal";
+import Table from "./Table";
+import { SampleModal, FurnaceModal, SubstrateModal } from "./Modal";
 
-const SampleList = () => (
+const SampleApp = () => (
     <React.Fragment>
         <DataProvider endpoint="api/sample/"
-                      render={data => <SampleTable data={data} />} />
+                      render={data => <Table data={data} />} />
         <SampleModal />
     </React.Fragment>
 );
 
-const wrapper = document.getElementById("sample_list");
+const FurnaceApp = () => (
+    <React.Fragment>
+        <DataProvider endpoint="../api/furnace/"
+                      render={data => <Table data={data} />} />
+        <FurnaceModal />
+    </React.Fragment>
+);
 
-wrapper ? ReactDOM.render(<SampleList />, wrapper) : null;
+const SubstrateApp = () => (
+    <React.Fragment>
+        <DataProvider endpoint="../api/substrate/"
+                      render={data => <Table data={data} />} />
+        <SubstrateModal />
+    </React.Fragment>
+);
+
+const sample_wrapper = document.getElementById("sample_list");
+sample_wrapper ? ReactDOM.render(<SampleApp />, sample_wrapper) : null;
+
+const furnace_wrapper = document.getElementById("furnace_list");
+furnace_wrapper ? ReactDOM.render(<FurnaceApp />, furnace_wrapper) : null;
+
+const substrate_wrapper = document.getElementById("substrate_list");
+substrate_wrapper ? ReactDOM.render(<SubstrateApp />, substrate_wrapper): null;

@@ -6,7 +6,7 @@ const SampleTable = ({ data }) =>
     !data.length ? (
         <p>Nothing to show</p>
     ) : (
-        <div id="furnace_list" className="columns">
+        <div id="sample_list" className="columns">
             <div className="column">
                 <h2 className="subtitle">
                     Showing <strong>{data.length} items</strong>

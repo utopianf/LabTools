@@ -53,27 +53,12 @@
   }
 },
 {
-  "model": "samplelist.chemicalsubstance",
-  "pk": 1,
-  "fields": {
-    "chem_formula": "SrTiO<sub>3</sub>",
-    "abbreviation": "STO"
-  }
-},
-{
-  "model": "samplelist.chemicalsubstance",
-  "pk": 2,
-  "fields": {
-    "chem_formula": "Fe<sub>2</sub>Mo<sub>3</sub>O<sub>8</sub>",
-    "abbreviation": "FMO"
-  }
-},
-{
   "model": "samplelist.target",
   "pk": 1,
   "fields": {
     "syn_date": "2019-04-23",
-    "chemical_substance": 2,
+    "chemical_formula": "Fe2Mo<sub>3</sub>O<sub>8</sub>",
+    "abbreviation": "FMO",
     "furnace_sequence": 1,
     "comment": null
   }
@@ -107,8 +92,9 @@
   "model": "samplelist.substrate",
   "pk": 1,
   "fields": {
-    "chemical_substance": 1,
-    "orientation": "111",
+    "chemical_formula": "SrTiO<sub>3</sub>",
+    "abbreviation": "STO",
+    "orientation": "1 0 0",
     "comment": null
   }
 },

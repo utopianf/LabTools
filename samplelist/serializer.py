@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Batch, BatchStep, ChemicalSubstance, Sample, Furnace, \
+from .models import Batch, BatchStep, Sample, Furnace, \
     FurnaceSequence, FurnaceStep, Substrate, Target
 
 
@@ -29,7 +29,7 @@ class FurnaceSequenceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FurnaceSequence
-        fields = ('targets', 'furnace', 'furnace_steps', 'comment')
+        fields = ('syn_date', 'targets', 'furnace', 'furnace_steps', 'comment')
 
     def create(self, validated_data):
         targets_data = validated_data.pop('targets')
@@ -40,12 +40,6 @@ class FurnaceSequenceSerializer(serializers.ModelSerializer):
         for furnace_step_data in furnace_steps_data:
             FurnaceStep.objects.create(furnace_sequence=furnace_sequence, **furnace_step_data)
         return furnace_sequence
-
-
-class ChemicalSubstanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ChemicalSubstance
-        fields = '__all__'
 
 
 class SubstrateSerializer(serializers.ModelSerializer):
@@ -60,7 +54,7 @@ class SampleSerializer(serializers.ModelSerializer):
         fields = ('id', 'batch', 'substrate', 'sub_size', 'is_masked', 'comment')
 
     def to_representation(self, instance):
-        targets_string = ','.join([bs.target.chemical_substance.abbreviation
+        targets_string = ','.join([bs.target.abbreviation
                                    for bs in instance.batch.batch_steps.all()])
         return {
             '#': instance.id,
@@ -71,7 +65,7 @@ class SampleSerializer(serializers.ModelSerializer):
             'Background Pressure (Torr)': instance.batch.background_pressure,
             'Atmosphere Gas': instance.batch.atmosphere_gas,
             'Atmosphere Pressure (Torr)': instance.batch.atmosphere_pressure,
-            'Substrate': '{0}({1})'.format(instance.substrate.chemical_substance.abbreviation,
+            'Substrate': '{0}({1})'.format(instance.substrate.abbreviation,
                                            instance.substrate.orientation),
             'Substrate Size (mm)': instance.sub_size,
             'Mask?': str(instance.is_masked),

@@ -24,6 +24,9 @@
     <orderEntry type="library" name="popper" level="application" />
     <orderEntry type="library" name="jquery-3.2.1.slim" level="application" />
     <orderEntry type="library" name="bootstrap" level="application" />
+    <orderEntry type="library" name="react-dom.development" level="application" />
+    <orderEntry type="library" name="react.development" level="application" />
+    <orderEntry type="library" name="axios" level="application" />
   </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
