@@ -22,6 +22,15 @@ class TargetSerializer(serializers.ModelSerializer):
         model = Target
         fields = '__all__'
 
+    def to_representation(self, instance):
+        return {
+            '#': instance.id,
+            'Chemical Formula': instance.chemical_formula,
+            'Abbreviation': instance.abbreviation,
+            'Furnace Sequence': instance.furnace_sequence.sequence_string,
+            'Comment': instance.comment
+        }
+
 
 class FurnaceSequenceSerializer(serializers.ModelSerializer):
     furnace_steps = FurnaceStepSerializer(many=True)

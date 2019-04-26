@@ -472,7 +472,7 @@ export class SubstrateModal extends React.Component {
     }
 }
 
-export class FurnaceSequenceModal extends React.Component {
+export class TargetModal extends React.Component {
     state = {
         modalState: false,
         syn_date: "",
@@ -540,9 +540,10 @@ export class FurnaceSequenceModal extends React.Component {
 
     componentDidMount() {
         fetch('../api/furnace/')
-            .then(data => {
-                this.setState({furnaces: data})
+            .then(response => {
+                return response.json();
             })
+            .then(data => this.setState({furnaces: data}));
     }
 
     render() {
@@ -624,7 +625,7 @@ export class FurnaceSequenceModal extends React.Component {
                                     <div className="control">
                                         <div className="select">
                                             <select>
-                                                {furnaces.map((furnace, idx) => (
+                                                {furnaces.map((furnace) => (
                                                     <option value={furnace.id}>{furnace.name}</option>
                                                 ))}
                                             </select>

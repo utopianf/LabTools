@@ -1,1 +1,1 @@
-import { SampleApp, FurnaceApp, SubstrateApp } from "./components/App";
+import { SampleApp, FurnaceApp, SubstrateApp, TargetApp } from "./components/App";
