@@ -14,13 +14,13 @@ class FurnaceSerializer(serializers.ModelSerializer):
 class FurnaceStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = FurnaceStep
-        fields = '__all__'
+        fields = ('order', 'start_temperature', 'end_temperature', 'duration')
 
 
 class TargetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Target
-        fields = '__all__'
+        fields = ('chemical_formula', 'abbreviation')
 
     def to_representation(self, instance):
         return {

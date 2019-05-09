@@ -476,13 +476,14 @@ export class TargetModal extends React.Component {
     state = {
         modalState: false,
         syn_date: "",
-        targets: [{
+        target: {
             chemical_formula: "",
             abbreviation: ""
-        }],
+        },
         furnaces: [],
+        furnace: "",
         furnace_steps: [{
-            order: "",
+            order: 1,
             start_temperature: "",
             end_temperature: "",
             duration: "",
@@ -499,8 +500,25 @@ export class TargetModal extends React.Component {
         });
     };
 
-    handleAppendFurnaceSequence = () => {
+    handleAppendFurnaceStep = () => {
+        const last_order = this.state.furnace_steps.length;
+        this.setState((prevState) => ({
+            furnace_steps: [...prevState.furnace_steps, {
+                order: last_order + 1,
+                start_temperature: "",
+                end_temperature: "",
+                duration: "",
+                comment: ""
+            }],
+        }));
+    };
 
+    handleFurnaceStepChange = idx => e => {
+        console.log(idx);
+        let steps = [...this.state.furnace_steps];
+        console.log(idx);
+        steps[e.target.dataset.id][e.target.name] = e.target.value;
+        this.setState({steps}, () => console.log(this.state.furnace_steps));
     };
 
     handleAddTarget = () => {
@@ -522,13 +540,25 @@ export class TargetModal extends React.Component {
     };
 
     handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
+        if (["order", "start_temperature", "end_temperature", "duration"].includes(e.target.name)) {
+            let furnace_steps = [...this.state.furnace_steps];
+            furnace_steps[e.target.dataset.id][e.target.name] = e.target.value;
+            this.setState({furnace_steps});
+        } else if (["chemical_formula", "abbreviation"].includes(e.target.name)) {
+            let target = this.state.target;
+            target[e.target.name] = e.target.value;
+            this.setState(target);
+        } else {
+            this.setState({[e.target.name]: e.target.value}, () => console.log(this.state.furnace));
+        }
     };
 
     handleSubmit = e => {
         e.preventDefault();
-        const { syn_date, targets, furnace, furnace_steps, comment } = this.state;
+        const { syn_date, target, furnace, furnace_steps, comment } = this.state;
+        const targets = [target];
         const furnace_sequence = { syn_date, targets, furnace, furnace_steps, comment };
+        console.log(furnace_sequence);
         const conf = {
             method: "post",
             body: JSON.stringify(furnace_sequence),
@@ -547,7 +577,7 @@ export class TargetModal extends React.Component {
     }
 
     render() {
-        const { syn_date, furnaces, furnace_steps, comment } = this.state;
+        const { syn_date, furnaces, furnace, target, furnace_steps, comment } = this.state;
         return (
             <div id="new_sample_form">
                 <div className="has-text-centered content">
@@ -564,7 +594,7 @@ export class TargetModal extends React.Component {
                     title="New Synthesis"
                 >
                     <div className="column">
-                        <form onSubmit={this.handleSubmit}>
+                        <form onSubmit={this.handleSubmit} onChange={this.handleChange}>
                             <div className="field is-horizontal">
                                 <div className="field-label is-normal">
                                     <label className="label">Chemical Formula</label>
@@ -576,7 +606,6 @@ export class TargetModal extends React.Component {
                                                    type="Date"
                                                    name="syn_date"
                                                    placeholder=""
-                                                   onChange={this.handleChange}
                                                    value={syn_date}
                                                    required
                                             />
@@ -586,35 +615,29 @@ export class TargetModal extends React.Component {
                             </div>
                             <div className="field is-horizontal">
                                 <div className="field-label is-normal">
-                                    <label className="label">Targets</label>
+                                    <label className="label">Target</label>
                                 </div>
-                                <div className="columns">
-                                {this.state.targets.map((target, idx) =>(
-                                    <div className="column">
-                                        <div className="field">
-                                            <div className="control">
-                                                <input className="input"
-                                                       type="text"
-                                                       name="chemical_formula"
-                                                       placeholder={`Chemical formula for #${idx+1} name`}
-                                                       onChange={this.handleTargetChange}
-                                                       value={target.chemical_formula}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="field">
-                                            <div className="control">
-                                                <input className="input"
-                                                       type="text"
-                                                       name="abbreviation"
-                                                       placeholder={`Abbreviation for #${idx+1} name`}
-                                                       onChange={this.handleTargetChange}
-                                                       value={target.abbreviation}
-                                                />
-                                            </div>
+                                <div className="field-body">
+                                    <div className="field">
+                                        <div className="control">
+                                            <input className="input"
+                                                   type="text"
+                                                   name="chemical_formula"
+                                                   placeholder="Chemical formula"
+                                                   value={target.chemical_formula}
+                                            />
                                         </div>
                                     </div>
-                                ))}
+                                    <div className="field">
+                                        <div className="control">
+                                            <input className="input"
+                                                   type="text"
+                                                   name="abbreviation"
+                                                   placeholder="Abbreviation"
+                                                   value={target.abbreviation}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div className="field is-horizontal">
@@ -624,12 +647,58 @@ export class TargetModal extends React.Component {
                                 <div className="field-body">
                                     <div className="control">
                                         <div className="select">
-                                            <select>
+                                            <select name="furnace" value={furnace}>
                                                 {furnaces.map((furnace) => (
                                                     <option value={furnace.id}>{furnace.name}</option>
                                                 ))}
                                             </select>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="field is-horizontal">
+                                <div className="field-label is-normal">
+                                    <label className="label">Furnace Sequence</label>
+                                    <div className="buttons is-right">
+                                        <a className="button" onClick={this.handleAppendFurnaceStep}>Add Step</a>
+                                    </div>
+                                </div>
+                                <div className="field-body">
+                                    <div className="columns">
+                                        {furnace_steps.map((step, idx) => (
+                                            <div className="column" key={idx}>
+                                                <div className="control">
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="order"
+                                                           placeholder="Order"
+                                                           value={step.order}
+                                                           data-id={idx}
+                                                    />
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="start_temperature"
+                                                           placeholder="Start Temperature"
+                                                           value={step.start_temperature}
+                                                           data-id={idx}
+                                                    />
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="end_temperature"
+                                                           placeholder="End Temperature"
+                                                           value={step.end_temperature}
+                                                           data-id={idx}
+                                                    />
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="duration"
+                                                           placeholder="Duration"
+                                                           value={step.duration}
+                                                           data-id={idx}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -644,7 +713,6 @@ export class TargetModal extends React.Component {
                                                    type="text"
                                                    name="comment"
                                                    placeholder="Any Comment"
-                                                   onChange={this.handleChange}
                                                    value={comment}
                                             />
                                         </div>
