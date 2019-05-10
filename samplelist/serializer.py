@@ -24,11 +24,11 @@ class TargetSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return {
-            '#': instance.id,
-            'Chemical Formula': instance.chemical_formula,
-            'Abbreviation': instance.abbreviation,
-            'Furnace Sequence': instance.furnace_sequence.sequence_string,
-            'Comment': instance.comment
+            'id': instance.id,
+            'chemical_formula': instance.chemical_formula,
+            'abbreviation': instance.abbreviation,
+            'furnace_sequence': instance.furnace_sequence.sequence_string,
+            'comment': instance.comment
         }
 
 
@@ -60,20 +60,20 @@ class SubstrateSerializer(serializers.ModelSerializer):
 class SampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sample
-        fields = ('id', 'batch', 'substrate', 'sub_size', 'is_masked', 'comment')
+        fields = ('substrate', 'sub_size', 'is_masked')
 
     def to_representation(self, instance):
         targets_string = ','.join([bs.target.abbreviation
                                    for bs in instance.batch.batch_steps.all()])
         return {
             '#': instance.id,
-            'Fabrication Date': instance.batch.fab_date.strftime("%Y-%m-%d"),
+            'Date': instance.batch.fab_date.strftime("%Y-%m-%d"),
             'PLD': instance.batch.pld,
             'Target': targets_string,
-            'Laser Energy (mJ)': instance.batch.laser_energy,
-            'Background Pressure (Torr)': instance.batch.background_pressure,
-            'Atmosphere Gas': instance.batch.atmosphere_gas,
-            'Atmosphere Pressure (Torr)': instance.batch.atmosphere_pressure,
+            'E<sub>Laser</sub> (mJ)': instance.batch.laser_energy,
+            'P<sub>Background</sub> (Torr)': instance.batch.background_pressure,
+            'Atmosphere': instance.batch.atmosphere_gas,
+            'P<sub>Atmosphere</sub> (Torr)': instance.batch.atmosphere_pressure,
             'Substrate': '{0}({1})'.format(instance.substrate.abbreviation,
                                            instance.substrate.orientation),
             'Substrate Size (mm)': instance.sub_size,
@@ -85,7 +85,7 @@ class SampleSerializer(serializers.ModelSerializer):
 class BatchStepSerializer(serializers.ModelSerializer):
     class Meta:
         model = BatchStep
-        fields = '__all__'
+        fields = ('order', 'target', 'temperature', 'pulse_num', 'duration')
 
 
 class BatchSerializer(serializers.ModelSerializer):
@@ -94,7 +94,8 @@ class BatchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Batch
-        fields = '__all__'
+        fields = ('fab_date', 'pld', 'pld_batch_id', 'laser_energy', 'background_pressure',
+                  'atmosphere_gas', 'atmosphere_pressure', 'comment', 'samples', 'batch_steps')
 
     def create(self, validated_data):
         samples_data = validated_data.pop('samples')

@@ -14,7 +14,7 @@ const SampleTable = ({ data }) =>
                 <table className="table is-striped">
                     <thead>
                         <tr>
-                            {Object.entries(data[0]).map(el => <th key={key(el)}>{el[0]}</th>)}
+                            {Object.entries(data[0]).map(el => <th key={key(el)} dangerouslySetInnerHTML={{__html: el[0]}} />)}
                         </tr>
                     </thead>
                     <tbody>

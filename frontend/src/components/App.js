@@ -2,19 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom";
 import DataProvider from "./DataProvider";
 import Table from "./Table";
-import { SampleModal, FurnaceModal, SubstrateModal, TargetModal } from "./Modal";
+import { BatchModal, FurnaceModal, SubstrateModal, TargetModal } from "./Modal";
 
 const SampleApp = () => (
     <React.Fragment>
-        <DataProvider endpoint="api/sample/"
+        <DataProvider endpoint="/api/sample/"
                       render={data => <Table data={data} />} />
-        <SampleModal />
+        <BatchModal />
     </React.Fragment>
 );
 
 const FurnaceApp = () => (
     <React.Fragment>
-        <DataProvider endpoint="../api/furnace/"
+        <DataProvider endpoint="/api/furnace/"
                       render={data => <Table data={data} />} />
         <FurnaceModal />
     </React.Fragment>
@@ -22,7 +22,7 @@ const FurnaceApp = () => (
 
 const SubstrateApp = () => (
     <React.Fragment>
-        <DataProvider endpoint="../api/substrate/"
+        <DataProvider endpoint="/api/substrate/"
                       render={data => <Table data={data} />} />
         <SubstrateModal />
     </React.Fragment>
@@ -30,7 +30,7 @@ const SubstrateApp = () => (
 
 const TargetApp = () => (
     <React.Fragment>
-        <DataProvider endpoint="../api/target/"
+        <DataProvider endpoint="/api/target/"
                       render={data => <Table data={data} />} />
         <TargetModal />
     </React.Fragment>

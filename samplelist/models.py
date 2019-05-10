@@ -69,6 +69,7 @@ class Target(models.Model):
 class Batch(models.Model):
     fab_date = models.DateField(default=now)
     pld = models.IntegerField()
+    pld_batch_id = models.IntegerField()
     laser_energy = models.FloatField()
     background_pressure = models.FloatField()
     atmosphere_gas = models.CharField(max_length=10)
@@ -129,7 +130,7 @@ class Sample(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     class Meta:
-        ordering = ['batch__id', 'substrate']
+        ordering = ['id', 'batch__id', 'substrate']
 
     def __str__(self):
         return 'Sample #{0}'.format(self.id)

@@ -38,20 +38,35 @@ Modal.propTypes = {
     title: PropTypes.string
 };
 
-export class SampleModal extends React.Component {
+export class BatchModal extends React.Component {
     state = {
         modalState: false,
         fab_date: "",
-        pld_id: "",
-        target_id: "",
+        pld: "",
+        pld_batch_id: "",
         laser_energy: "",
-        bg_pressure: "",
-        ap_gas: "",
-        ap_pressure: "",
-        substrate: "",
-        ss_size: "",
-        is_mask: "false",
-        comment: ""
+        background_pressure: "",
+        atmosphere_gas: "",
+        atmosphere_pressure: "",
+        samples: [
+            {
+                substrate: "",
+                sub_size: "",
+                is_masked: "False"
+            }
+        ],
+        batch_steps: [
+            {
+                order: 1,
+                target: "",
+                temperature: "",
+                pulse_num: "",
+                duration: ""
+            }
+        ],
+        comment: "",
+        substrates: [],
+        targets: []
     };
 
     toggleModal = () => {
@@ -62,28 +77,76 @@ export class SampleModal extends React.Component {
         });
     };
 
+    handleAppendSample = () => {
+        this.setState({
+            samples: this.state.samples.concat([{
+                substrate: "",
+                sub_size: "",
+                is_masked: "False"
+            }])
+        });
+    };
+
+    handleAppendBatchStep = () => {
+        const last_order = this.state.batch_steps.length;
+        this.setState({
+            batch_steps: this.state.batch_steps.concat([{
+                order: last_order + 1,
+                target: "",
+                temperature: "",
+                pulse_sum: "",
+                duration: ""
+            }])
+        });
+    };
+
     handleChange = e => {
-        this.setState({ [e.target.name]: e.target.value });
+        if (["order", "target", "temperature", "pulse_num", "duration"].includes(e.target.name)) {
+            let batch_steps = [...this.state.batch_steps];
+            batch_steps[e.target.dataset.id][e.target.name] = e.target.value;
+            this.setState({batch_steps}, () => (console.log(this.state)));
+        } else if (["substrate", "sub_size", "is_masked"].includes(e.target.name)) {
+            let samples = [...this.state.samples];
+            samples[e.target.dataset.id][e.target.name] = e.target.value;
+            this.setState({samples});
+        } else {
+            this.setState({[e.target.name]: e.target.value});
+        }
     };
 
     handleSubmit = e => {
         e.preventDefault();
-        const { fab_date, pld_id, target_id, laser_energy, bg_pressure, ap_gas,
-            ap_pressure, substrate, ss_size, is_mask, comment } = this.state;
-        const sample = { fab_date, pld_id, target_id, laser_energy, bg_pressure, ap_gas,
-            ap_pressure, substrate, ss_size, is_mask, comment };
+        const { fab_date, pld, pld_batch_id, laser_energy, background_pressure, atmosphere_gas,
+                atmosphere_pressure, samples, batch_steps, comment } = this.state;
+        const batch = { fab_date, pld, pld_batch_id, laser_energy, background_pressure,
+                        atmosphere_gas, atmosphere_pressure, samples, batch_steps, comment };
         const conf = {
             method: "post",
-            body: JSON.stringify(sample),
+            body: JSON.stringify(batch),
             headers: new Headers({ "Content-Type": "application/json" })
         };
-        fetch("api/sample/", conf).then(response => console.log(response));
+        fetch("/api/batch/", conf).then(response => console.log(response));
         this.toggleModal();
     };
 
+    componentDidMount() {
+        fetch('/api/substrate/')
+            .then(response => {
+                return response.json();
+            })
+            .then(data => this.setState({substrates: data}));
+        fetch('/api/target/')
+            .then(response => {
+                return response.json();
+            })
+            .then(data => this.setState({targets: data}));
+    };
+
     render() {
-        const { fab_date, pld_id, target_id, laser_energy, bg_pressure, ap_gas,
-            ap_pressure, substrate, ss_size, comment } = this.state;
+        const { fab_date, pld, pld_batch_id, laser_energy, background_pressure,
+                atmosphere_gas, atmosphere_pressure, samples, batch_steps, comment } = this.state;
+        const substrates = this.state.substrates;
+        const targets = this.state.targets;
         return (
             <div id="new_sample_form">
                 <div className="has-text-centered content">
@@ -97,19 +160,17 @@ export class SampleModal extends React.Component {
                     saveModal={this.handleSubmit}
                     closeModal={this.toggleModal}
                     modalState={this.state.modalState}
-                    title="New Sample"
+                    title="New Batch"
                 >
                     <div className="column">
-                        <form onSubmit={this.handleSubmit}>
+                        <form onSubmit={this.handleSubmit} onChange={this.handleChange}>
                             <div className="field">
                                 <div className="control">
                                     <input className="input"
                                            type="date"
                                            placeholder="Fabrication Date"
                                            name="fab_date"
-                                           onChange={this.handleChange}
                                            value={fab_date}
-                                           required
                                     />
                                 </div>
                             </div>
@@ -118,10 +179,8 @@ export class SampleModal extends React.Component {
                                     <input className="input"
                                            type="text"
                                            placeholder="PLD #"
-                                           name="pld_id"
-                                           onChange={this.handleChange}
-                                           value={pld_id}
-                                           required
+                                           name="pld"
+                                           value={pld}
                                     />
                                 </div>
                             </div>
@@ -129,11 +188,9 @@ export class SampleModal extends React.Component {
                                 <div className="control">
                                     <input className="input"
                                            type="text"
-                                           placeholder="Target #"
-                                           name="target_id"
-                                           onChange={this.handleChange}
-                                           value={target_id}
-                                           required
+                                           placeholder="PLD Batch #"
+                                           name="pld_batch_id"
+                                           value={pld_batch_id}
                                     />
                                 </div>
                             </div>
@@ -143,9 +200,7 @@ export class SampleModal extends React.Component {
                                            type="text"
                                            placeholder="Laser Energy"
                                            name="laser_energy"
-                                           onChange={this.handleChange}
                                            value={laser_energy}
-                                           required
                                     />
                                 </div>
                             </div>
@@ -153,65 +208,128 @@ export class SampleModal extends React.Component {
                                 <div className="control">
                                     <input className="input"
                                            type="text"
-                                           placeholder="atmosphere Gas"
-                                           name="ap_gas"
-                                           onChange={this.handleChange}
-                                           value={ap_gas}
-                                           required
+                                           placeholder="Atmosphere Gas"
+                                           name="atmosphere_gas"
+                                           value={atmosphere_gas}
                                     />
                                 </div>
                                 <div className="control">
                                     <input className="input"
                                            type="text"
                                            placeholder="Atmosphere Pressure"
-                                           name="ap_pressure"
-                                           onChange={this.handleChange}
-                                           value={ap_pressure}
-                                           required
+                                           name="atmosphere_pressure"
+                                           value={atmosphere_pressure}
                                     />
                                 </div>
                                 <div className="control">
                                     <input className="input"
                                            type="text"
                                            placeholder="Background Pressure"
-                                           name="bg_pressure"
-                                           onChange={this.handleChange}
-                                           value={bg_pressure}
-                                           required
+                                           name="background_pressure"
+                                           value={background_pressure}
                                     />
                                 </div>
                             </div>
-                            <div className="field">
-                                <div className="control">
-                                    <input className="input"
-                                           type="text"
-                                           placeholder="Substrate"
-                                           name="substrate"
-                                           onChange={this.handleChange}
-                                           value={substrate}
-                                           required
-                                    />
+                            <div className="field is-horizontal">
+                                <div className="field-label is-normal">
+                                    <label className="label">Samples</label>
+                                    <div className="buttons is-right">
+                                        <a className="button" onClick={this.handleAppendSample}>Add Sample</a>
+                                    </div>
+                                </div>
+                                <div className="field-body is-grouped">
+                                    <div className="columns">
+                                        {samples.map((sample, idx) => (
+                                            <div className="column" key={idx}>
+                                                <div className="control">
+                                                    <div className="select">
+                                                        <select name="substrate"
+                                                                data-id={idx}
+                                                                onChange={this.handleChange}>
+                                                            <option>Select substrate</option>
+                                                            {substrates.map((substrate) => (
+                                                                <option value={substrate.id}>
+                                                                    {substrate.abbreviation} ({substrate.orientation})
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="sub_size"
+                                                           placeholder="Substrate Size"
+                                                           value={sample.sub_size}
+                                                           data-id={idx}
+                                                    />
+                                                    <div className="select">
+                                                        <select name="is_masked"
+                                                                data-id={idx}
+                                                                onChange={this.handleChange}>
+                                                            <option value="false">false</option>
+                                                            <option value="true">true</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                            <div className="field">
-                                <div className="control">
-                                    <input className="input"
-                                           type="text"
-                                           placeholder="Substrate Size"
-                                           name="ss_size"
-                                           onChange={this.handleChange}
-                                           value={ss_size}
-                                           required
-                                    />
+                            <div className="field is-horizontal">
+                                <div className="field-label is-normal">
+                                    <label className="label">Batch Steps</label>
+                                    <div className="buttons is-right">
+                                        <a className="button" onClick={this.handleAppendBatchStep}>Add Step</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="field">
-                                <div className="control">
-                                    <div className="select">
-                                        <select>
-                                            <option>False</option>
-                                            <option>True</option>
-                                        </select>
+                                <div className="field-body is-grouped">
+                                    <div className="columns">
+                                        {batch_steps.map((step, idx) => (
+                                            <div className="column" key={idx}>
+                                                <div className="control">
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="order"
+                                                           placeholder="Order"
+                                                           value={step.order}
+                                                           data-id={idx}
+                                                    />
+                                                    <div className="select">
+                                                        <select name="target"
+                                                                data-id={idx}
+                                                                onChange={this.handleChange}>
+                                                            <option>Select target</option>
+                                                            {targets.map((target) => (
+                                                                <option value={target.id}>
+                                                                    {target.abbreviation}
+                                                                </option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="temperature"
+                                                           placeholder="Substrate Temperature"
+                                                           value={step.temperature}
+                                                           data-id={idx}
+                                                    />
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="pulse_num"
+                                                           placeholder="Pulse number"
+                                                           value={step.pulse_num}
+                                                           data-id={idx}
+                                                    />
+                                                    <input className="input"
+                                                           type="text"
+                                                           name="duration"
+                                                           placeholder="Step Duration"
+                                                           value={step.duration}
+                                                           data-id={idx}
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             </div>
@@ -221,9 +339,7 @@ export class SampleModal extends React.Component {
                                            type="text"
                                            placeholder="Comment"
                                            name="comment"
-                                           onChange={this.handleChange}
                                            value={comment}
-                                           required
                                     />
                                 </div>
                             </div>
@@ -264,7 +380,7 @@ export class FurnaceModal extends React.Component {
             body: JSON.stringify(furnace),
             headers: new Headers({ "Content-Type": "application/json" })
         };
-        fetch("../api/furnace/", conf).then(response => console.log(response));
+        fetch("/api/furnace/", conf).then(response => console.log(response));
         this.toggleModal();
     };
 
@@ -366,7 +482,7 @@ export class SubstrateModal extends React.Component {
             body: JSON.stringify(substrate),
             headers: new Headers({ "Content-Type": "application/json" })
         };
-        fetch("../api/substrate/", conf).then(response => console.log(response));
+        fetch("/api/substrate/", conf).then(response => console.log(response));
         this.toggleModal();
     };
 
@@ -564,12 +680,12 @@ export class TargetModal extends React.Component {
             body: JSON.stringify(furnace_sequence),
             headers: new Headers({ "Content-Type": "application/json" })
         };
-        fetch("../api/furnace_sequence/", conf).then(response => console.log(response));
+        fetch("/api/furnace_sequence/", conf).then(response => console.log(response));
         this.toggleModal();
     };
 
     componentDidMount() {
-        fetch('../api/furnace/')
+        fetch('/api/furnace/')
             .then(response => {
                 return response.json();
             })
