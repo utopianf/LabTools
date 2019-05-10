@@ -1,0 +1,112 @@
+[
+{
+  "model": "samplelist.furnace",
+  "pk": 1,
+  "fields": {
+    "name": "test furnace",
+    "location": "test location",
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.furnacesequence",
+  "pk": 1,
+  "fields": {
+    "furnace": 1,
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.furnacestep",
+  "pk": 1,
+  "fields": {
+    "furnace_sequence": 1,
+    "order": 1,
+    "start_temperature": 20,
+    "end_temperature": 800,
+    "duration": "02:00:00",
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.furnacestep",
+  "pk": 2,
+  "fields": {
+    "furnace_sequence": 1,
+    "order": 2,
+    "start_temperature": 800,
+    "end_temperature": 800,
+    "duration": "10:00:00",
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.furnacestep",
+  "pk": 3,
+  "fields": {
+    "furnace_sequence": 1,
+    "order": 3,
+    "start_temperature": 800,
+    "end_temperature": 20,
+    "duration": "02:00:00",
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.target",
+  "pk": 1,
+  "fields": {
+    "syn_date": "2019-04-23",
+    "chemical_formula": "Fe2Mo<sub>3</sub>O<sub>8</sub>",
+    "abbreviation": "FMO",
+    "furnace_sequence": 1,
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.batch",
+  "pk": 1,
+  "fields": {
+    "fab_date": "2019-04-23",
+    "pld": 0,
+    "laser_energy": 20.0,
+    "background_pressure": 1e-07,
+    "atmosphere_gas": "Ar",
+    "atmosphere_pressure": 0.01,
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.batchstep",
+  "pk": 1,
+  "fields": {
+    "batch": 1,
+    "order": 1,
+    "target": 1,
+    "temperature": 780.0,
+    "pulse_num": 7200,
+    "duration": "02:00:00"
+  }
+},
+{
+  "model": "samplelist.substrate",
+  "pk": 1,
+  "fields": {
+    "chemical_formula": "SrTiO<sub>3</sub>",
+    "abbreviation": "STO",
+    "orientation": "1 0 0",
+    "comment": null
+  }
+},
+{
+  "model": "samplelist.sample",
+  "pk": 1,
+  "fields": {
+    "batch": 1,
+    "substrate": 1,
+    "sub_size": "5*5",
+    "is_masked": false,
+    "comment": null
+  }
+}
+]

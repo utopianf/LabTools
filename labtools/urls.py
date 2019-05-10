@@ -16,11 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from mpms.urls import router as mpms_router
+# from mpms.urls import router as mpms_router
+from samplelist.urls import router as samplelist_router
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(r'api/', include(mpms_router.urls)),
-    path('mpms/', include('mpms.urls'))
+    path(r'api/', include(samplelist_router.urls)),
+    # path('mpms/', include('mpms.urls')),
+    path('', include('frontend.urls')),
 ]

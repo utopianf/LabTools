@@ -67,8 +67,6 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
->>>>>>> origin/master
-
 # Created by https://www.gitignore.io/api/pycharm,python,django
 # Edit at https://www.gitignore.io/?templates=pycharm,python,django
 
@@ -80,10 +78,8 @@ __pycache__/
 local_settings.py
 db.sqlite3
 media
-<<<<<<< HEAD
+
 data
-=======
->>>>>>> origin/master
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
