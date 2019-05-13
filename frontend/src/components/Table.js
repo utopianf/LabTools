@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import key from "weak-key";
 
-const SampleTable = ({ data }) =>
+const Table = ({ data }) =>
     !data.length ? (
         <p>Nothing to show</p>
     ) : (
@@ -14,7 +14,8 @@ const SampleTable = ({ data }) =>
                 <table className="table is-striped">
                     <thead>
                         <tr>
-                            {Object.entries(data[0]).map(el => <th key={key(el)} dangerouslySetInnerHTML={{__html: el[0]}} />)}
+                            {Object.entries(data[0]).map(
+                                el => <th key={key(el)} dangerouslySetInnerHTML={{__html: el[0]}} />)}
                         </tr>
                     </thead>
                     <tbody>
@@ -29,8 +30,8 @@ const SampleTable = ({ data }) =>
         </div>
     );
 
-SampleTable.propTypes = {
+Table.propTypes = {
     data: PropTypes.array.isRequired
 };
 
-export default SampleTable;
+export default Table;

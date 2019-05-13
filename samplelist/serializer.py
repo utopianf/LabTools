@@ -1,7 +1,10 @@
 from rest_framework import serializers
 
 from .models import Batch, BatchStep, Sample, Furnace, \
-    FurnaceSequence, FurnaceStep, Substrate, Target
+    FurnaceSequence, FurnaceStep, Substrate, Target, \
+    MPMSRawFile, MPMSDataTimeSeries
+
+import pandas as pd
 
 
 # Synthesis Serializer
@@ -20,14 +23,14 @@ class FurnaceStepSerializer(serializers.ModelSerializer):
 class TargetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Target
-        fields = ('chemical_formula', 'abbreviation')
+        fields = ('chemical_formula', 'abbreviation', 'is_commercial')
 
     def to_representation(self, instance):
         return {
             'id': instance.id,
             'chemical_formula': instance.chemical_formula,
             'abbreviation': instance.abbreviation,
-            'furnace_sequence': instance.furnace_sequence.sequence_string,
+            'furnace_sequence': 'Unavailable' if not instance.furnace_sequence else instance.furnace_sequence.sequence_string,
             'comment': instance.comment
         }
 
@@ -106,3 +109,66 @@ class BatchSerializer(serializers.ModelSerializer):
         for batch_step_data in batch_steps_data:
             BatchStep.objects.create(batch=batch, **batch_step_data)
         return batch
+
+
+class MPMSDataTimeSeriesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MPMSDataTimeSeries
+        fields = '__all__'
+
+    def create_from_csv(self, validated_data):
+        MPMSRawFile.objects.create(**validated_data)
+
+        mpms_df = pd.read_csv(validated_data['mpms_raw_file'], header=20)
+
+
+class MPMSRawFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MPMSRawFile
+        fields = '__all__'
+        extra_kwargs = {'sample': {'write_only': True}}
+
+    def create(self, validated_data):
+        mpms_raw_file = MPMSRawFile.objects.create(**validated_data)
+
+        mpms_df = pd.read_csv(mpms_raw_file.raw_file, header=20)
+        # [(start_line, end_line, mh/mt)]
+        curves = []
+
+        ph, pt, pm = mpms_df.iloc[0, 2:4]
+        current_curve = None
+        start_line, end_line = 0, 0
+        for line in range(1, mpms_df.shape[0] - 1):
+            h, t, m = mpms_df.iloc[line, 2:4]
+            if abs(h - ph) < 5.0 < abs(t - pt):
+                if current_curve is None:
+                    current_curve = "MH"
+                elif current_curve == "MT":
+                    curves.append((start_line, line - 2, "MH"))
+                    start_line = line - 1
+                    current_curve = "MH"
+            elif abs(t - pt) < 5.0 < abs(h - ph):
+                if current_curve is None:
+                    current_curve = "MT"
+                elif current_curve == "MH":
+                    curves.append((start_line, line - 2, "MT"))
+                    start_line = line - 1
+                    current_curve = "MT"
+            ph, pt, pm = h, t, m
+
+        order_curve = 1
+        for start, end, curve_type in curves:
+            t = round(mpms_df.iloc[start, 3], 0)
+
+            order_point = 1
+            for line in range(start, end + 1):
+                h, m = mpms_df.iloc[line, [2, 4]]
+
+                MPMSCurve(raw_file=mpms_raw_file,
+                          order=order,
+                          curve_type=curve_type,
+                          temperature=t,
+                          magnetic_field=h,
+                          magnetic_moment=m).save()
+                order_point += 1
+            order_curve += 1

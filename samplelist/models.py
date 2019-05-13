@@ -14,7 +14,8 @@ class Furnace(models.Model):
 
 class FurnaceSequence(models.Model):
     syn_date = models.DateField(default=now)
-    furnace = models.ForeignKey(Furnace, on_delete=models.CASCADE)
+    furnace = models.ForeignKey(Furnace, on_delete=models.CASCADE,
+                                blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     @property
@@ -56,9 +57,11 @@ class FurnaceStep(models.Model):
 class Target(models.Model):
     chemical_formula = models.CharField(max_length=100)
     abbreviation = models.CharField(max_length=10)
+    is_commercial = models.BooleanField(default=False)
     furnace_sequence = models.ForeignKey(FurnaceSequence,
                                          related_name='targets',
-                                         on_delete=models.CASCADE)
+                                         on_delete=models.CASCADE,
+                                         blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -151,38 +154,17 @@ def mt_file_name(instance, filename):
 
 
 class MPMSRawFile(models.Model):
-    user = models.CharField(max_length=20)
     pub_date = models.DateField(default=now)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
     raw_file = models.FileField(upload_to=mpms_raw_file_name)
     comment = models.TextField(blank=True, null=True)
 
 
-class MHCurve(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
-    temperature = models.FloatField()
+class MPMSDataTimeSeries(models.Model):
     raw_file = models.ForeignKey(MPMSRawFile, on_delete=models.CASCADE)
-    data_file = models.FileField(upload_to=mh_file_name)
-    comment = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return 'MH: {0}-{1:.1f}'.format(
-            self.sample,
-            self.temperature
-        )
-
-
-class MTCurve(models.Model):
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
-    magnetic_field = models.FloatField(blank=True, null=True)
-    raw_file = models.ForeignKey(MPMSRawFile, on_delete=models.CASCADE)
-    data_file = models.FileField(upload_to=mt_file_name)
-    comment = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return 'MT: {0}-{1:.1f}'.format(
-            self.sample,
-            self.magnetic_field,
-        )
+    time = models.FloatField()
+    measurement = models.CharField(max_length=100)
+    value = models.FloatField()
 
 
 # PPMS Data

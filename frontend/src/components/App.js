@@ -2,13 +2,19 @@ import React from "react";
 import ReactDOM from "react-dom";
 import DataProvider from "./DataProvider";
 import Table from "./Table";
-import { BatchModal, FurnaceModal, SubstrateModal, TargetModal } from "./Modal";
+import { BatchModal, FurnaceModal, SubstrateModal, FurnaceSequenceModal, CommercialTargetModal } from "./Modal";
 
-const SampleApp = () => (
+const SampleListApp = () => (
     <React.Fragment>
         <DataProvider endpoint="/api/sample/"
                       render={data => <Table data={data} />} />
         <BatchModal />
+    </React.Fragment>
+);
+
+const SampleDetailApp = () => (
+    <React.Fragment>
+
     </React.Fragment>
 );
 
@@ -32,12 +38,12 @@ const TargetApp = () => (
     <React.Fragment>
         <DataProvider endpoint="/api/target/"
                       render={data => <Table data={data} />} />
-        <TargetModal />
+        <FurnaceSequenceModal /><CommercialTargetModal />
     </React.Fragment>
 );
 
-const sample_wrapper = document.getElementById("sample_list");
-sample_wrapper ? ReactDOM.render(<SampleApp />, sample_wrapper) : null;
+const samplelist_wrapper = document.getElementById("sample_list");
+samplelist_wrapper ? ReactDOM.render(<SampleListApp />, samplelist_wrapper) : null;
 
 const furnace_wrapper = document.getElementById("furnace_list");
 furnace_wrapper ? ReactDOM.render(<FurnaceApp />, furnace_wrapper) : null;
@@ -47,3 +53,6 @@ substrate_wrapper ? ReactDOM.render(<SubstrateApp />, substrate_wrapper) : null;
 
 const target_wrapper = document.getElementById("target_list");
 target_wrapper ? ReactDOM.render(<TargetApp/>, target_wrapper) : null;
+
+const sample_detail_wrapper = document.getElementById("sample_detail");
+sample_detail_wrapper ? ReactDOM.render(<SampleDetailApp />, sample_detail_wrapper) : null;

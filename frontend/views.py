@@ -16,3 +16,7 @@ def substrate(request):
 
 def target(request):
     return render(request, 'frontend/target.html')
+
+
+def sample(request):
+    return render(request, 'frontend/sample.html')

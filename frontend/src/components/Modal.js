@@ -487,7 +487,7 @@ export class SubstrateModal extends React.Component {
     };
 
     render() {
-        const { chem_formula: chemical_formula, abbreviation, orientation, comment } = this.state;
+        const { chemical_formula, abbreviation, orientation, comment } = this.state;
         return (
             <div id="new_sample_form">
                 <div className="has-text-centered content">
@@ -514,8 +514,8 @@ export class SubstrateModal extends React.Component {
                                         <div className="control">
                                             <input className="input"
                                                    type="text"
-                                                   name="chem_formula"
-                                                   placeholder="e.g. SrTiO<sub>3</sub>"
+                                                   name="chemical_formula"
+                                                   placeholder="e.g. SrTiO3"
                                                    onChange={this.handleChange}
                                                    value={chemical_formula}
                                                    required
@@ -553,7 +553,7 @@ export class SubstrateModal extends React.Component {
                                             <input className="input"
                                                    type="text"
                                                    name="orientation"
-                                                   placeholder="e.g. (1 0 0)"
+                                                   placeholder="e.g. 100"
                                                    onChange={this.handleChange}
                                                    value={orientation}
                                                    required
@@ -588,11 +588,12 @@ export class SubstrateModal extends React.Component {
     }
 }
 
-export class TargetModal extends React.Component {
+export class FurnaceSequenceModal extends React.Component {
     state = {
         modalState: false,
         syn_date: "",
         target: {
+            is_commercial: "False",
             chemical_formula: "",
             abbreviation: ""
         },
@@ -833,6 +834,103 @@ export class TargetModal extends React.Component {
                                             />
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </Modal>
+            </div>
+        );
+    }
+}
+
+export class CommercialTargetModal extends React.Component {
+    state = {
+        modalState: false,
+        chemical_formula: "",
+        abbreviation: "",
+        is_commercial: "True",
+        comment: ""
+    };
+
+    toggleModal = () => {
+        this.setState((prev) => {
+            const newState = !prev.modalState;
+
+            return {modalState: newState};
+        });
+    }
+
+    handleChange = e => {
+        this.setState({ [e.target.name]: e.target.value });
+    };
+
+    handleSubmit = e => {
+        e.preventDefault();
+        const { chemical_formula, abbreviation, is_commercial, comment } = this.state;
+        const target = { chemical_formula, abbreviation, is_commercial, comment };
+        const conf = {
+            method: "post",
+            body: JSON.stringify(target),
+            headers: new Headers({ "Content-Type": "application/json" })
+        };
+        fetch("/api/target/", conf).then(response => console.log(response));
+        this.toggleModal();
+    };
+
+    render() {
+        const { chemical_formula, abbreviation, comment } = this.state;
+        return (
+            <div id="new_sample_form">
+                <div className="has-text-centered content">
+                    <hr/>
+                    <a className="button is-primary" onClick={(e) => this.toggleModal(e)}>
+                        Create
+                    </a>
+                </div>
+
+                <Modal
+                    closeModal={this.toggleModal}
+                    saveModal={this.handleSubmit}
+                    modalState={this.state.modalState}
+                    title="New Commercial Target"
+                >
+                    <div className="column">
+                        <form onSubmit={this.handleSubmit}>
+                            <div className="field">
+                                <label className="label">Chemical Formula</label>
+                                <div className="control">
+                                    <input className="input"
+                                           type="text"
+                                           name="chemical_formula"
+                                           onChange={this.handleChange}
+                                           value={chemical_formula}
+                                           required
+                                    />
+                                </div>
+                            </div>
+                            <div className="field">
+                                <label className="label">Abbreviation</label>
+                                <div className="control">
+                                    <input className="input"
+                                           type="text"
+                                           name="abbreviation"
+                                           onChange={this.handleChange}
+                                           value={abbreviation}
+                                           required
+                                    />
+                                </div>
+                            </div>
+                            <div className="field">
+                                <label className="label">Comment</label>
+                                <div className="control">
+                                    <input className="input"
+                                           type="text"
+                                           name="comment"
+                                           onChange={this.handleChange}
+                                           value={comment}
+                                           required
+                                    />
                                 </div>
                             </div>
                         </form>
