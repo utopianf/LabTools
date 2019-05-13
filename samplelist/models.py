@@ -142,7 +142,7 @@ class Sample(models.Model):
 # Data Models
 # MPMS Data
 def mpms_raw_file_name(instance, filename):
-    return 'data/mpms/raw_files/{0}/{1}'.format(instance.user, filename)
+    return 'data/mpms/raw_files/{0}'.format(filename)
 
 
 def mh_file_name(instance, filename):
@@ -155,7 +155,8 @@ def mt_file_name(instance, filename):
 
 class MPMSRawFile(models.Model):
     pub_date = models.DateField(default=now)
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE,
+                               related_name='mpms_raw_files')
     raw_file = models.FileField(upload_to=mpms_raw_file_name)
     comment = models.TextField(blank=True, null=True)
 
@@ -163,8 +164,11 @@ class MPMSRawFile(models.Model):
 class MPMSDataTimeSeries(models.Model):
     raw_file = models.ForeignKey(MPMSRawFile, on_delete=models.CASCADE)
     time = models.FloatField()
-    measurement = models.CharField(max_length=100)
-    value = models.FloatField()
+    magnetic_field = models.FloatField()
+    temperature = models.FloatField()
+    long_moment = models.FloatField()
+
+    sequence = models.IntegerField()
 
 
 # PPMS Data
