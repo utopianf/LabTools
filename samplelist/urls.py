@@ -2,7 +2,7 @@ from django.urls import path
 
 from rest_framework import routers
 from .views import FurnaceViewSet, FurnaceStepViewSet, FurnaceSequenceViewSet, TargetViewSet, \
-    SubstrateViewSet, SampleViewSet, BatchStepViewSet, BatchViewSet, MTCurveViewSet, MHCurveViewSet
+    SubstrateViewSet, SampleViewSet, BatchStepViewSet, BatchViewSet, MPMSRawFileViewSet, MPMSDataViewSet
 
 router = routers.DefaultRouter()
 router.register(r'furnace', FurnaceViewSet)
@@ -13,7 +13,7 @@ router.register(r'substrate', SubstrateViewSet)
 router.register(r'sample', SampleViewSet)
 router.register(r'batch_step', BatchStepViewSet)
 router.register(r'batch', BatchViewSet)
-router.register(r'mt_curve', MTCurveViewSet)
-router.register(r'mh_curve', MHCurveViewSet)
+router.register(r'mpms_rawfile', MPMSRawFileViewSet)
+router.register(r'mpms_data', MPMSDataViewSet)
 
 urlpatterns = []

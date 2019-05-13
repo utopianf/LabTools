@@ -116,59 +116,95 @@ class MPMSDataTimeSeriesSerializer(serializers.ModelSerializer):
         model = MPMSDataTimeSeries
         fields = '__all__'
 
-    def create_from_csv(self, validated_data):
-        MPMSRawFile.objects.create(**validated_data)
-
-        mpms_df = pd.read_csv(validated_data['mpms_raw_file'], header=20)
-
 
 class MPMSRawFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = MPMSRawFile
         fields = '__all__'
-        extra_kwargs = {'sample': {'write_only': True}}
 
     def create(self, validated_data):
         mpms_raw_file = MPMSRawFile.objects.create(**validated_data)
 
-        mpms_df = pd.read_csv(mpms_raw_file.raw_file, header=20)
-        # [(start_line, end_line, mh/mt)]
-        curves = []
+        dataframe = pd.read_csv(mpms_raw_file.raw_file, header=20)
+        df_iter = dataframe.iterrows()
+        _, prow = next(df_iter)
+        seq, pre = 0, None
+        MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                           time=prow['Time'],
+                           magnetic_field=prow['Field (Oe)'],
+                           temperature=prow['Temperature (K)'],
+                           long_moment=prow['Long Moment (emu)'],
+                           sequence=seq).save()
+        _, row = next(df_iter)
+        MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                           time=prow['Time'],
+                           magnetic_field=prow['Field (Oe)'],
+                           temperature=prow['Temperature (K)'],
+                           long_moment=prow['Long Moment (emu)'],
+                           sequence=seq).save()
 
-        ph, pt, pm = mpms_df.iloc[0, 2:4]
-        current_curve = None
-        start_line, end_line = 0, 0
-        for line in range(1, mpms_df.shape[0] - 1):
-            h, t, m = mpms_df.iloc[line, 2:4]
-            if abs(h - ph) < 5.0 < abs(t - pt):
-                if current_curve is None:
-                    current_curve = "MH"
-                elif current_curve == "MT":
-                    curves.append((start_line, line - 2, "MH"))
-                    start_line = line - 1
-                    current_curve = "MH"
-            elif abs(t - pt) < 5.0 < abs(h - ph):
-                if current_curve is None:
-                    current_curve = "MT"
-                elif current_curve == "MH":
-                    curves.append((start_line, line - 2, "MT"))
-                    start_line = line - 1
-                    current_curve = "MT"
-            ph, pt, pm = h, t, m
+        sequence = None
+        if abs(prow['Temperature (K)'] - row['Temperature (K)']) < 5.0:
+            sequence = "MH"
+        elif abs(prow['Field (Oe)'] - row['Field (Oe)']) < 1.0:
+            sequence = "MT"
 
-        order_curve = 1
-        for start, end, curve_type in curves:
-            t = round(mpms_df.iloc[start, 3], 0)
+        prow = row
+        while True:
+            try:
+                _, row = next(df_iter)
+                if sequence == "MH" and abs(prow['Temperature (K)'] - row['Temperature (K)']) >= 5.0:
+                    seq += 1
+                    MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                                       time=row['Time'],
+                                       magnetic_field=row['Field (Oe)'],
+                                       temperature=row['Temperature (K)'],
+                                       long_moment=row['Long Moment (emu)'],
+                                       sequence=seq).save()
 
-            order_point = 1
-            for line in range(start, end + 1):
-                h, m = mpms_df.iloc[line, [2, 4]]
+                    prow = row
+                    _, row = next(df_iter)
+                    if abs(prow['Temperature (K)'] - row['Temperature (K)']) < 5.0:
+                        sequence = "MH"
+                    elif abs(prow['Field (Oe)'] - row['Field (Oe)']) < 1.0:
+                        sequence = "MT"
+                    MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                                       time=row['Time'],
+                                       magnetic_field=row['Field (Oe)'],
+                                       temperature=row['Temperature (K)'],
+                                       long_moment=row['Long Moment (emu)'],
+                                       sequence=seq).save()
 
-                MPMSCurve(raw_file=mpms_raw_file,
-                          order=order,
-                          curve_type=curve_type,
-                          temperature=t,
-                          magnetic_field=h,
-                          magnetic_moment=m).save()
-                order_point += 1
-            order_curve += 1
+                elif sequence == "MT" and abs(prow['Field (Oe)'] - row['Field (Oe)']) >= 1.0:
+                    seq += 1
+                    MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                                       time=row['Time'],
+                                       magnetic_field=row['Field (Oe)'],
+                                       temperature=row['Temperature (K)'],
+                                       long_moment=row['Long Moment (emu)'],
+                                       sequence=seq).save()
+
+                    prow = row
+                    _, row = next(df_iter)
+                    if abs(prow['Temperature (K)'] - row['Temperature (K)']) < 5.0:
+                        sequence = "MH"
+                    elif abs(prow['Field (Oe)'] - row['Field (Oe)']) < 1.0:
+                        sequence = "MT"
+                    MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                                       time=row['Time'],
+                                       magnetic_field=row['Field (Oe)'],
+                                       temperature=row['Temperature (K)'],
+                                       long_moment=row['Long Moment (emu)'],
+                                       sequence=seq).save()
+                else:
+                    MPMSDataTimeSeries(raw_file=mpms_raw_file,
+                                       time=row['Time'],
+                                       magnetic_field=row['Field (Oe)'],
+                                       temperature=row['Temperature (K)'],
+                                       long_moment=row['Long Moment (emu)'],
+                                       sequence=seq).save()
+                prow = row
+
+            except StopIteration:
+                break
+        return mpms_raw_file

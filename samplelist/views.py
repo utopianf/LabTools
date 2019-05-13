@@ -1,11 +1,16 @@
 from rest_framework import viewsets, generics
 from rest_framework.decorators import action
+from rest_framework.response import Response
 
-from rest_pandas import PandasViewSet
+from django_pandas.io import read_frame
 
 from .serializer import FurnaceSerializer, FurnaceStepSerializer, FurnaceSequenceSerializer, TargetSerializer, \
-    SubstrateSerializer, SampleSerializer, BatchStepSerializer, BatchSerializer, MHCurveSerializer, MTCurveSerializer
-from .models import Furnace, FurnaceStep, FurnaceSequence, Target, Substrate, Sample, BatchStep, Batch, MHCurve, MTCurve
+    SubstrateSerializer, SampleSerializer, BatchStepSerializer, BatchSerializer, MPMSDataTimeSeriesSerializer, \
+    MPMSRawFileSerializer
+from .models import Furnace, FurnaceStep, FurnaceSequence, Target, Substrate, Sample, BatchStep, Batch, \
+    MPMSRawFile, MPMSDataTimeSeries
+
+import numpy as np
 
 
 # Create your views here.
@@ -39,20 +44,18 @@ class SampleViewSet(viewsets.ModelViewSet):
     serializer_class = SampleSerializer
 
     # TODO: get mh mt curve
-    @action(methods=['post'], detail=True)
-    def get_mh_curve(self, request, pk=None):
-        sample = self.get_object()
-        mh_curve_set = sample.mhcurve_set.all()
+    @action(methods=['get'], detail=True)
+    def get_mpms_curve(self, request, pk=None):
+        mpms_curve_set = MPMSDataTimeSeries.objects.filter(raw_file__sample=pk)
+        serializer = MPMSDataTimeSeriesSerializer(mpms_curve_set, many=True)
+        return Response(serializer.data)
 
-    @action(methods=['post'], detail=True)
-    def get_mt_curve(self, request, pk=None):
-        sample = self.get_object()
-        mt_curve_set = sample.mtcurve_set.all()
-
-    @action(methods=['post'], detail=True)
+    @action(methods=['get'], detail=True)
     def get_xrd(self, request, pk=None):
         sample = self.get_object()
         xrd_list = sample.onedimensionxrd_set.all()
+
+        return Response({'status': 'Not implemented'})
 
 
 class BatchStepViewSet(viewsets.ModelViewSet):
@@ -64,16 +67,13 @@ class BatchViewSet(viewsets.ModelViewSet):
     queryset = Batch.objects.order_by('-fab_date')
     serializer_class = BatchSerializer
 
-    @action(methods=['post'], detail=False)
-    def from_form(self, request):
-        pass
+
+class MPMSRawFileViewSet(viewsets.ModelViewSet):
+    queryset = MPMSRawFile.objects.all()
+    serializer_class = MPMSRawFileSerializer
 
 
-class MHCurveViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = MHCurve.objects.all()
-    serializer_class = MHCurveSerializer
-
-
-class MTCurveViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = MTCurve.objects.all()
-    serializer_class = MTCurveSerializer
+class MPMSDataViewSet(viewsets.ModelViewSet):
+    queryset = MPMSDataTimeSeries.objects.all()
+    serializer_class = MPMSDataTimeSeriesSerializer
+    filterset_fields = ('raw_file', 'sequence')
