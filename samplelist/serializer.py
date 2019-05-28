@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse_lazy
 
 from .models import Batch, BatchStep, Sample, Furnace, \
     FurnaceSequence, FurnaceStep, Substrate, Target, \
@@ -69,19 +70,20 @@ class SampleSerializer(serializers.ModelSerializer):
         targets_string = ','.join([bs.target.abbreviation
                                    for bs in instance.batch.batch_steps.all()])
         return {
-            '#': instance.id,
+            '#': "<a href='/api/sample/{0}/'>{0}</a>".format(instance.id),
+            'Batch #': "<a href='/api/batch/{0}/'>{1}</a>".format(instance.batch.id, instance.batch.pld_batch_id),
             'Date': instance.batch.fab_date.strftime("%Y-%m-%d"),
             'PLD': instance.batch.pld,
             'Target': targets_string,
+            'Substrate': '{0}({1})'.format(instance.substrate.abbreviation,
+                                           instance.substrate.orientation),
             'E<sub>Laser</sub> (mJ)': instance.batch.laser_energy,
             'P<sub>Background</sub> (Torr)': instance.batch.background_pressure,
             'Atmosphere': instance.batch.atmosphere_gas,
             'P<sub>Atmosphere</sub> (Torr)': instance.batch.atmosphere_pressure,
-            'Substrate': '{0}({1})'.format(instance.substrate.abbreviation,
-                                           instance.substrate.orientation),
             'Substrate Size (mm)': instance.sub_size,
             'Mask?': str(instance.is_masked),
-            'Comment': instance.comment,
+            'Comment': instance.batch.comment,
         }
 
 
