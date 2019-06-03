@@ -177,7 +177,7 @@ class MPMSDataTimeSeries(models.Model):
 
 # XRD
 def xrd_file_name(instance, filename):
-    return 'data/xrd/{0}/{1}'.format(instance.user, filename)
+    return 'data/xrd/{0}'.format(filename)
 
 
 class OneDimensionXRD(models.Model):
