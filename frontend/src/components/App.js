@@ -1,13 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import DataProvider from "./DataProvider";
-import Table from "./Table";
+import { Table, SampleTable, TargetTable } from "./Table";
 import { BatchModal, FurnaceModal, SubstrateModal, FurnaceSequenceModal, CommercialTargetModal } from "./Modal";
 
 const SampleListApp = () => (
     <React.Fragment>
         <DataProvider endpoint="/api/sample/"
-                      render={data => <Table data={data} />} />
+                      render={data => <SampleTable samples={data} />} />
         <BatchModal />
     </React.Fragment>
 );
@@ -37,7 +37,7 @@ const SubstrateApp = () => (
 const TargetApp = () => (
     <React.Fragment>
         <DataProvider endpoint="/api/target/"
-                      render={data => <Table data={data} />} />
+                      render={data => <TargetTable targets={data} />} />
         <FurnaceSequenceModal /><CommercialTargetModal />
     </React.Fragment>
 );

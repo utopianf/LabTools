@@ -19,13 +19,13 @@ class FurnaceSequence(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     @property
-    def sequence_string(self):
-        sequence_string = '{0}˚C -> {1}˚C'.format(self.furnace_steps.first().start_temperature,
+    def sequences_string(self):
+        sequences_string = '{0}˚C -> {1}˚C'.format(self.furnace_steps.first().start_temperature,
                                                   self.furnace_steps.first().end_temperature)
         for furnace_step in self.furnace_steps.all()[1:]:
-            sequence_string += ' -> {0}˚C'.format(furnace_step.end_temperature)
+            sequences_string += ' -> {0}˚C'.format(furnace_step.end_temperature)
 
-        return sequence_string
+        return sequences_string
 
 
 class FurnaceStep(models.Model):
@@ -78,6 +78,11 @@ class Batch(models.Model):
     atmosphere_gas = models.CharField(max_length=10)
     atmosphere_pressure = models.FloatField()
     comment = models.TextField(blank=True, null=True)
+
+    @property
+    def targets_string(self):
+        return ",".join([bs.target.abbreviation
+                         for bs in self.batch_steps.all()])
 
     def __str__(self):
         return 'Batch #{0}'.format(self.id)

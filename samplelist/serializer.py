@@ -22,18 +22,12 @@ class FurnaceStepSerializer(serializers.ModelSerializer):
 
 
 class TargetSerializer(serializers.ModelSerializer):
+    sequences_string = serializers.CharField(source='furnace_sequence.sequences_string', read_only=True)
+    is_commercial = serializers.CharField()
+
     class Meta:
         model = Target
-        fields = ('chemical_formula', 'abbreviation', 'is_commercial', 'comment')
-
-    def to_representation(self, instance):
-        return {
-            'id': instance.id,
-            'chemical_formula': instance.chemical_formula,
-            'abbreviation': instance.abbreviation,
-            'furnace_sequence': 'Unavailable' if not instance.furnace_sequence else instance.furnace_sequence.sequence_string,
-            'comment': instance.comment
-        }
+        fields = ('id', 'chemical_formula', 'abbreviation', 'is_commercial', 'sequences_string', 'comment')
 
 
 class FurnaceSequenceSerializer(serializers.ModelSerializer):
@@ -62,29 +56,24 @@ class SubstrateSerializer(serializers.ModelSerializer):
 
 
 class SampleSerializer(serializers.ModelSerializer):
+    batch_id = serializers.IntegerField(source='batch.id', read_only=True)
+    batch_fab_date = serializers.DateField(source='batch.fab_date', read_only=True, format="%y%m%d")
+    batch_pld = serializers.IntegerField(source='batch.pld', read_only=True)
+    batch_targets_string = serializers.CharField(source='batch.targets_string', read_only=True)
+    batch_atmosphere_gas = serializers.CharField(source='batch.atmosphere_gas', read_only=True)
+    batch_atmosphere_pressure = serializers.FloatField(source='batch.atmosphere_pressure', read_only=True)
+    batch_background_pressure = serializers.FloatField(source='batch.background_pressure', read_only=True)
+    batch_laser_energy = serializers.FloatField(source='batch.laser_energy', read_only=True)
+    substrate_abbreviation = serializers.CharField(source='substrate.abbreviation', read_only=True)
+
+    is_masked = serializers.CharField()
+
     class Meta:
         model = Sample
-        fields = ('substrate', 'sub_size', 'is_masked')
-
-    def to_representation(self, instance):
-        targets_string = ','.join([bs.target.abbreviation
-                                   for bs in instance.batch.batch_steps.all()])
-        return {
-            '#': "<a href='/api/sample/{0}/'>{0}</a>".format(instance.id),
-            'Batch #': "<a href='/api/batch/{0}/'>{1}</a>".format(instance.batch.id, instance.batch.pld_batch_id),
-            'Date': instance.batch.fab_date.strftime("%Y-%m-%d"),
-            'PLD': instance.batch.pld,
-            'Target': targets_string,
-            'Substrate': '{0}({1})'.format(instance.substrate.abbreviation,
-                                           instance.substrate.orientation),
-            'E<sub>Laser</sub> (mJ)': instance.batch.laser_energy,
-            'P<sub>Background</sub> (Torr)': instance.batch.background_pressure,
-            'Atmosphere': instance.batch.atmosphere_gas,
-            'P<sub>Atmosphere</sub> (Torr)': instance.batch.atmosphere_pressure,
-            'Substrate Size (mm)': instance.sub_size,
-            'Mask?': str(instance.is_masked),
-            'Comment': instance.batch.comment,
-        }
+        fields = ('id', 'batch_id', 'batch_fab_date', 'batch_pld', 'batch_targets_string',
+                  'substrate_abbreviation', 'sub_size', 'is_masked', 'batch_atmosphere_gas',
+                  'batch_atmosphere_pressure', 'batch_background_pressure', 'batch_laser_energy',
+                  'comment')
 
 
 class BatchStepSerializer(serializers.ModelSerializer):
