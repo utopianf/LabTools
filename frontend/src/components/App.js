@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import DataProvider from "./DataProvider";
 import { Table, SampleTable, TargetTable } from "./Table";
+import { SampleTabs } from "./Tab";
 import { BatchModal, FurnaceModal, SubstrateModal, FurnaceSequenceModal, CommercialTargetModal } from "./Modal";
 
 const SampleListApp = () => (
@@ -12,9 +13,10 @@ const SampleListApp = () => (
     </React.Fragment>
 );
 
-const SampleDetailApp = () => (
+const SampleDetailApp = ( sample_id ) => (
     <React.Fragment>
-
+        <DataProvider endpoint={"/api/sample/" + sample_id.sample_id}
+                      render={data => <SampleTabs sample={data} />} />
     </React.Fragment>
 );
 
@@ -55,4 +57,9 @@ const target_wrapper = document.getElementById("target_list");
 target_wrapper ? ReactDOM.render(<TargetApp/>, target_wrapper) : null;
 
 const sample_detail_wrapper = document.getElementById("sample_detail");
-sample_detail_wrapper ? ReactDOM.render(<SampleDetailApp />, sample_detail_wrapper) : null;
+if (sample_detail_wrapper) {
+    const sample_id = sample_detail_wrapper.getAttribute("data-id");
+    ReactDOM.render(<SampleDetailApp sample_id={sample_id}/>, sample_detail_wrapper);
+} else {
+    null;
+}

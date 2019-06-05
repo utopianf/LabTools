@@ -246,9 +246,9 @@ export class BatchModal extends React.Component {
                                                         <select name="substrate"
                                                                 data-id={idx}
                                                                 onChange={this.handleChange}>
-                                                            <option>Select substrate</option>
+                                                            <option key={0}>Select substrate</option>
                                                             {substrates.map((substrate) => (
-                                                                <option value={substrate.id}>
+                                                                <option key={substrate.id} value={substrate.id}>
                                                                     {substrate.abbreviation} ({substrate.orientation})
                                                                 </option>
                                                             ))}
@@ -265,8 +265,8 @@ export class BatchModal extends React.Component {
                                                         <select name="is_masked"
                                                                 data-id={idx}
                                                                 onChange={this.handleChange}>
-                                                            <option value="false">false</option>
-                                                            <option value="true">true</option>
+                                                            <option key={0} value="false">false</option>
+                                                            <option key={1} value="true">true</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -298,9 +298,9 @@ export class BatchModal extends React.Component {
                                                         <select name="target"
                                                                 data-id={idx}
                                                                 onChange={this.handleChange}>
-                                                            <option>Select target</option>
+                                                            <option key={0}>Select target</option>
                                                             {targets.map((target) => (
-                                                                <option value={target.id}>
+                                                                <option key={target.id} value={target.id}>
                                                                     {target.abbreviation}
                                                                 </option>
                                                             ))}

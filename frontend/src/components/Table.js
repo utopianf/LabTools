@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import key from "weak-key";
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 
 export const Table = ({ data }) =>
     !data.length ? (
@@ -63,8 +64,8 @@ export const SampleTable = ({ samples }) =>
                     </thead>
                     <tbody>
                     {samples.map(sample => (
-                        <tr>
-                            <td><a href={"/api/samples/" + sample.id}>{sample.id}</a></td>
+                        <tr key={sample.id}>
+                            <td><a href={"/sample/" + sample.id}>{sample.id}</a></td>
                             <td><a href={"/api/batch/" + sample.batch_id}>{sample.batch_id}</a></td>
                             <td>{sample.batch_fab_date}</td>
                             <td>{sample.batch_pld}</td>
@@ -111,7 +112,7 @@ export const TargetTable = ({ targets }) =>
                     </thead>
                     <tbody>
                     {targets.map(target => (
-                        <tr>
+                        <tr key={target.id}>
                             <td><a href={"/api/samples/" + target.id}>{target.id}</a></td>
                             <td>{target.chemical_formula}</td>
                             <td>{target.abbreviation}</td>
@@ -129,3 +130,36 @@ export const TargetTable = ({ targets }) =>
 TargetTable.propTypes = {
     targets: PropTypes.array.isRequired
 };
+
+export const SampleDetailTable = ({ sample }) => (
+    <Tabs>
+        <TabList>
+            <Tab>
+                <span className="is-small"><i className="far fa-file-alt" aria-hidden="true"></i></span>
+                <span>Overview</span>
+            </Tab>
+            <Tab>
+                <span className="is-small"><i className="far fa-chart-bar" aria-hidden="true"></i></span>
+                <span>XRD</span>
+            </Tab>
+            <Tab>
+                <span className="is-small"><i className="far fa-chart-bar" aria-hidden="true"></i></span>
+                <span>EDX</span>
+            </Tab>
+            <Tab>
+                <span className="is-small"><i className="far fa-chart-bar" aria-hidden="true"></i></span>
+                <span>MPMS</span>
+            </Tab>
+            <Tab>
+                <span className="is-small"><i className="far fa-chart-bar" aria-hidden="true"></i></span>
+                <span>PPMS</span>
+            </Tab>
+        </TabList>
+
+        <TabPanel></TabPanel>
+        <TabPanel></TabPanel>
+        <TabPanel></TabPanel>
+        <TabPanel></TabPanel>
+        <TabPanel></TabPanel>
+    </Tabs>
+);
