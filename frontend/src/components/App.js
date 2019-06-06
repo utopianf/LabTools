@@ -13,9 +13,9 @@ const SampleListApp = () => (
     </React.Fragment>
 );
 
-const SampleDetailApp = ( sample_id ) => (
+const SampleDetailApp = ({ sample_id }) => (
     <React.Fragment>
-        <DataProvider endpoint={"/api/sample/" + sample_id.sample_id}
+        <DataProvider endpoint={"/api/sample/" + sample_id}
                       render={data => <SampleTabs sample={data} />} />
     </React.Fragment>
 );

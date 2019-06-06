@@ -199,3 +199,9 @@ class MPMSRawFileSerializer(serializers.ModelSerializer):
             except StopIteration:
                 break
         return mpms_raw_file
+
+
+class SampleDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Sample

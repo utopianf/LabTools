@@ -140,8 +140,26 @@ class Sample(models.Model):
     class Meta:
         ordering = ['id', 'batch__id', 'substrate']
 
+    @property
+    def sample_string(self):
+        targets = ",".join([bs.target.abbreviation for bs in self.batch.batch_steps.all()])
+        return targets+"@"+self.substrate.abbreviation
+
     def __str__(self):
         return 'Sample #{0}'.format(self.id)
+
+
+class SampleDetail(models.Model):
+    photo = models.ImageField(upload_to='data/images/', blank=True, null=True)
+    color = models.CharField(max_length=6, blank=True, null=True)
+    thickness = models.FloatField(blank=True, null=True)
+    area = models.FloatField(blank=True, null=True)
+    a = models.FloatField(blank=True, null=True)
+    b = models.FloatField(blank=True, null=True)
+    c = models.FloatField(blank=True, null=True)
+    alpha = models.FloatField(blank=True, null=True)
+    beta = models.FloatField(blank=True, null=True)
+    gamma = models.FloatField(blank=True, null=True)
 
 
 # Data Models
@@ -185,10 +203,17 @@ def xrd_file_name(instance, filename):
     return 'data/xrd/{0}'.format(filename)
 
 
-class OneDimensionXRD(models.Model):
+class OneDimensionXRDRawFile(models.Model):
     pub_date = models.DateTimeField(default=now)
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE)
     data_file = models.FileField(upload_to=xrd_file_name)
+    comment = models.TextField(blank=True, null=True)
+
+
+class OneDimensionXRDSeries(models.Model):
+    raw_file = models.ForeignKey(OneDimensionXRDRawFile, on_delete=models.CASCADE)
+    two_theta = models.FloatField()
+    intensity = models.FloatField()
 
 
 # EDX
