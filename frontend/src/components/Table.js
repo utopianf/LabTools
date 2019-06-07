@@ -66,17 +66,17 @@ export const SampleTable = ({ samples }) =>
                     {samples.map(sample => (
                         <tr key={sample.id}>
                             <td><a href={"/sample/" + sample.id}>{sample.id}</a></td>
-                            <td><a href={"/api/batch/" + sample.batch_id}>{sample.batch_id}</a></td>
-                            <td>{sample.batch_fab_date}</td>
-                            <td>{sample.batch_pld}</td>
-                            <td>{sample.batch_targets_string}</td>
+                            <td><a href={"/api/batch/" + sample.batch_id}>{sample.pld_batch_id}</a></td>
+                            <td>{sample.fab_date}</td>
+                            <td>{sample.pld}</td>
+                            <td>{sample.targets_string}</td>
                             <td>{sample.substrate_abbreviation}</td>
                             <td>{sample.sub_size}</td>
                             <td>{sample.is_masked}</td>
-                            <td>{sample.batch_atmosphere_gas}</td>
-                            <td>{sample.batch_atmosphere_pressure}</td>
-                            <td>{sample.batch_background_pressure}</td>
-                            <td>{sample.batch_laser_energy}</td>
+                            <td>{sample.atmosphere_gas}</td>
+                            <td>{sample.atmosphere_pressure}</td>
+                            <td>{sample.background_pressure}</td>
+                            <td>{sample.laser_energy}</td>
                             <td>{sample.comment}</td>
                         </tr>
                     ))}
