@@ -21,7 +21,7 @@ class FurnaceSequence(models.Model):
     @property
     def sequences_string(self):
         sequences_string = '{0}˚C -> {1}˚C'.format(self.furnace_steps.first().start_temperature,
-                                                  self.furnace_steps.first().end_temperature)
+                                                   self.furnace_steps.first().end_temperature)
         for furnace_step in self.furnace_steps.all()[1:]:
             sequences_string += ' -> {0}˚C'.format(furnace_step.end_temperature)
 

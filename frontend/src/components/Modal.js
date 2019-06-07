@@ -104,7 +104,7 @@ export class BatchModal extends React.Component {
         if (["order", "target", "temperature", "pulse_num", "duration"].includes(e.target.name)) {
             let batch_steps = [...this.state.batch_steps];
             batch_steps[e.target.dataset.id][e.target.name] = e.target.value;
-            this.setState({batch_steps}, () => (console.log(this.state)));
+            this.setState({batch_steps});
         } else if (["substrate", "sub_size", "is_masked"].includes(e.target.name)) {
             let samples = [...this.state.samples];
             samples[e.target.dataset.id][e.target.name] = e.target.value;
@@ -631,11 +631,9 @@ export class FurnaceSequenceModal extends React.Component {
     };
 
     handleFurnaceStepChange = idx => e => {
-        console.log(idx);
         let steps = [...this.state.furnace_steps];
-        console.log(idx);
         steps[e.target.dataset.id][e.target.name] = e.target.value;
-        this.setState({steps}, () => console.log(this.state.furnace_steps));
+        this.setState({steps});
     };
 
     handleAddTarget = () => {
@@ -666,7 +664,7 @@ export class FurnaceSequenceModal extends React.Component {
             target[e.target.name] = e.target.value;
             this.setState(target);
         } else {
-            this.setState({[e.target.name]: e.target.value}, () => console.log(this.state.furnace));
+            this.setState({[e.target.name]: e.target.value});
         }
     };
 
@@ -675,7 +673,6 @@ export class FurnaceSequenceModal extends React.Component {
         const { syn_date, target, furnace, furnace_steps, comment } = this.state;
         const targets = [target];
         const furnace_sequence = { syn_date, targets, furnace, furnace_steps, comment };
-        console.log(furnace_sequence);
         const conf = {
             method: "post",
             body: JSON.stringify(furnace_sequence),

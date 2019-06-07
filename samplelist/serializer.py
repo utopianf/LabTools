@@ -57,23 +57,30 @@ class SubstrateSerializer(serializers.ModelSerializer):
 
 class SampleSerializer(serializers.ModelSerializer):
     batch_id = serializers.IntegerField(source='batch.id', read_only=True)
-    batch_fab_date = serializers.DateField(source='batch.fab_date', read_only=True, format="%y%m%d")
-    batch_pld = serializers.IntegerField(source='batch.pld', read_only=True)
-    batch_targets_string = serializers.CharField(source='batch.targets_string', read_only=True)
-    batch_atmosphere_gas = serializers.CharField(source='batch.atmosphere_gas', read_only=True)
-    batch_atmosphere_pressure = serializers.FloatField(source='batch.atmosphere_pressure', read_only=True)
-    batch_background_pressure = serializers.FloatField(source='batch.background_pressure', read_only=True)
-    batch_laser_energy = serializers.FloatField(source='batch.laser_energy', read_only=True)
-    substrate_abbreviation = serializers.CharField(source='substrate.abbreviation', read_only=True)
+    pld = serializers.IntegerField(source='batch.pld')
+    pld_batch_id = serializers.IntegerField(source='batch.pld_batch_id')
+    fab_date = serializers.DateField(source='batch.fab_date', format="%y%m%d")
+    targets_string = serializers.CharField(source='batch.targets_string')
+    atmosphere_gas = serializers.CharField(source='batch.atmosphere_gas')
+    atmosphere_pressure = serializers.FloatField(source='batch.atmosphere_pressure')
+    background_pressure = serializers.FloatField(source='batch.background_pressure')
+    laser_energy = serializers.FloatField(source='batch.laser_energy')
+    substrate_abbreviation = serializers.CharField(source='substrate.abbreviation')
 
     is_masked = serializers.CharField()
 
     class Meta:
         model = Sample
-        fields = ('id', 'batch_id', 'batch_fab_date', 'batch_pld', 'batch_targets_string',
-                  'substrate_abbreviation', 'sub_size', 'is_masked', 'batch_atmosphere_gas',
-                  'batch_atmosphere_pressure', 'batch_background_pressure', 'batch_laser_energy',
+        fields = ('id', 'batch_id', 'pld', 'pld_batch_id', 'fab_date', 'targets_string',
+                  'substrate_abbreviation', 'sub_size', 'is_masked', 'atmosphere_gas',
+                  'atmosphere_pressure', 'background_pressure', 'laser_energy',
                   'comment')
+
+
+class SampleInBatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sample
+        fields = ('substrate', 'sub_size', 'is_masked')
 
 
 class BatchStepSerializer(serializers.ModelSerializer):
@@ -83,7 +90,7 @@ class BatchStepSerializer(serializers.ModelSerializer):
 
 
 class BatchSerializer(serializers.ModelSerializer):
-    samples = SampleSerializer(many=True)
+    samples = SampleInBatchSerializer(many=True)
     batch_steps = BatchStepSerializer(many=True)
 
     class Meta:
