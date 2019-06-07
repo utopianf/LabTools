@@ -9,6 +9,16 @@ export class SampleTabs extends React.Component {
         sample: PropTypes.object.isRequired
     };
 
+    handleEdit = e => {
+        e.preventDefault();
+        const conf = {
+            method: "patch",
+            body: JSON.stringify(),
+            headers: new Headers({"Content-Type": "application/json"})
+        };
+        fetch("/api/sample/" + this.props.sample.id).then(response => console.log(response));
+    };
+
     render() {
         return (
             <Tabs selectedTabClassName="is-active">

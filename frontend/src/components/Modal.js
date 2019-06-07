@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import key from "weak-key";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faEdit } from '@fortawesome/free-solid-svg-icons'
 
 const Modal = ({children, closeModal, saveModal, modalState, title}) => {
     if (!modalState) {
@@ -37,6 +39,72 @@ Modal.propTypes = {
     modalState: PropTypes.bool.isRequired,
     title: PropTypes.string
 };
+
+export class EditModal extends React.Component {
+    static propTypes = {
+        endpoint: PropTypes.string,
+        edit_target: PropTypes.string,
+        edit_value: PropTypes.string
+    };
+
+    state = {
+        modalState: false,
+        edit_value: this.props.edit_value
+    };
+
+    toggleModal = () => {
+        this.setState((prev) => {
+            const newState = !prev.modalState;
+
+            return {modalState: newState};
+        });
+    };
+
+    handleChange = e => {
+        this.setState({edit_value: e.target.value});
+    };
+
+    handleSubmit = e => {
+        e.preventDefault();
+        let patch_data = {};
+        patch_data[this.props.edit_target] = this.state.edit_value;
+        const conf = {
+            method: "post",
+            body: JSON.stringify(patch_data),
+            headers: new Headers({ "Content-Type": "application/json" })
+        };
+        fetch(this.props.endpoint, conf).then(response => console.log(response));
+        this.toggleModal();
+    };
+
+    render() {
+        return(
+            <div id="edit_modal">
+                <span className="icon" onClick={this.toggleModal}>
+                    <FontAwesomeIcon icon={faEdit} />
+                </span>
+
+                <Modal
+                    modalState={this.state.modalState}
+                    saveModal={this.handleSubmit}
+                    closeModal={this.toggleModal}
+                    title={this.props.edit_target}
+                >
+                    <form onChange={this.handleChange}>
+                        <div className="field">
+                            <label className="label">{this.props.edit_target}</label>
+                            <div className="control">
+                                <input className="input" type="text"
+                                       placeholder={this.state.edit_value}
+                                       value={this.state.edit_value} />
+                            </div>
+                        </div>
+                    </form>
+                </Modal>
+            </div>
+        )
+    }
+}
 
 export class BatchModal extends React.Component {
     state = {
@@ -856,7 +924,7 @@ export class CommercialTargetModal extends React.Component {
 
             return {modalState: newState};
         });
-    }
+    };
 
     handleChange = e => {
         this.setState({ [e.target.name]: e.target.value });
